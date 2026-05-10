@@ -1,0 +1,51 @@
+# ========================
+# C++ (core)
+# ========================
+core/build/
+core/cmake-build-*/
+*.o
+*.a
+*.so
+*.dll
+*.dylib
+*.exe
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# ========================
+# Kotlin / Java (java-bridge)
+# ========================
+java-bridge/build/
+*.class
+*.jar
+
+# ========================
+# Gradle
+# ========================
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# ========================
+# IntelliJ
+# ========================
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# ========================
+# CLion
+# ========================
+.clangd/
+.cache/
+compile_commands.json
+
+# ========================
+# OS
+# ========================
+.DS_Store
+Thumbs.db
