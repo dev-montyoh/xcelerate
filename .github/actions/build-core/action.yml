@@ -1,0 +1,12 @@
+name: Build core
+description: C++ 코어 CMake 빌드
+
+runs:
+  using: composite
+  steps:
+    - name: CMake 빌드
+      run: |
+        cd core
+        cmake -B build
+        cmake --build build
+      shell: bash
