@@ -1,0 +1,27 @@
+name: develop PR
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build-core:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v6
+
+      - name: C++ 코어 빌드
+        uses: ./.github/actions/build-core
+
+  build-java-bridge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v6
+
+      - name: java-bridge 빌드
+        uses: ./.github/actions/build-java-bridge
