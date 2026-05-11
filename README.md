@@ -29,14 +29,6 @@ dependencies {
 
 ---
 
-## 사용법
-
-```java
-ExcelGenerator.generate("output.xlsx", 4_000_000);
-```
-
----
-
 ## 프로젝트 구조
 
 ```
