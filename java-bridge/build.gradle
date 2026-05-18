@@ -9,10 +9,13 @@ repositories {
 dependencies {
     implementation 'net.java.dev.jna:jna:5.14.0'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
 }
 
 test {
     useJUnitPlatform()
+    systemProperty 'java.library.path', "${rootDir}/core/build"
+    environment 'DYLD_LIBRARY_PATH', "${rootDir}/core/build"
 }
 
 java {
