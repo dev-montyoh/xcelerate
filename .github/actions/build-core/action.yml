@@ -4,6 +4,10 @@ description: C++ 코어 CMake 빌드
 runs:
   using: composite
   steps:
+    - name: zlib 설치
+      run: sudo apt-get install -y zlib1g-dev
+      shell: bash
+
     - name: CMake 빌드
       run: |
         cd core
