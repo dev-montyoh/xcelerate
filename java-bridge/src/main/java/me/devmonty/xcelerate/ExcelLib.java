@@ -1,4 +1,4 @@
-package com.xcelerate;
+package me.devmonty.xcelerate;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
