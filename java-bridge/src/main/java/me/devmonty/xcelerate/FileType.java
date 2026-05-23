@@ -1,4 +1,4 @@
-package com.xcelerate;
+package me.devmonty.xcelerate;
 
 public enum FileType {
     EXCEL,

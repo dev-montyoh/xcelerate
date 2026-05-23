@@ -1,4 +1,4 @@
-package com.xcelerate;
+package me.devmonty.xcelerate;
 
 import java.io.*;
 import java.nio.file.*;

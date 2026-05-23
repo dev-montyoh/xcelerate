@@ -34,7 +34,7 @@ test {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId    = 'com.xcelerate'
+            groupId    = 'me.dev-monty'
             artifactId = 'xcelerate'
             version    = '0.0.1'
             from components.java
