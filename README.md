@@ -27,7 +27,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'me.dev-monty:xcelerate:0.0.1'
+    implementation 'dev.montyoh:xcelerate:0.0.1'
 }
 ```
 

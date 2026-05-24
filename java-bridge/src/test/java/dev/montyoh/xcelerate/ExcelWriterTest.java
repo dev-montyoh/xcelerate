@@ -1,4 +1,4 @@
-package me.devmonty.xcelerate;
+package dev.montyoh.xcelerate;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
