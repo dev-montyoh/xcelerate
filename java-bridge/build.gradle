@@ -1,0 +1,58 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'net.java.dev.jna:jna:5.14.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
+}
+
+// C++ 빌드 결과물(네이티브 라이브러리)을 JAR 안의 /native/ 로 번들
+processResources {
+    from("${rootDir}/core/build") {
+        include 'libxcelerate.dylib'   // macOS
+        include 'libxcelerate.so'      // Linux
+        include 'xcelerate.dll'        // Windows
+        into 'native'
+    }
+    duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.INCLUDE
+}
+
+test {
+    useJUnitPlatform()
+    systemProperty 'java.library.path', "${rootDir}/core/build"
+    environment 'DYLD_LIBRARY_PATH', "${rootDir}/core/build"  // macOS
+    environment 'LD_LIBRARY_PATH',   "${rootDir}/core/build"  // Linux
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId    = 'dev.montyoh'
+            artifactId = 'xcelerate'
+            version    = '0.0.1'
+            from components.java
+        }
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+sourceSets {
+    main {
+        java.srcDirs 'src/main/java'
+    }
+    test {
+        java.srcDirs 'src/test/java'
+    }
+}
