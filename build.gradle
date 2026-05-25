@@ -1,0 +1,17 @@
+plugins {
+    id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
+}
+
+// Sonatype Central Portal 배포 설정
+// java-bridge 서브프로젝트의 maven-publish 와 연동됨
+nexusPublishing {
+    repositories {
+        sonatype {
+            // 새 Central Portal 전용 OSSRH-compatible 엔드포인트
+            nexusUrl = uri("https://ossrh-staging-api.central.sonatype.com/service/local/")
+            snapshotRepositoryUrl = uri("https://central.sonatype.com/repository/maven-snapshots/")
+            username = findProperty('sonatypeUsername')
+            password = findProperty('sonatypePassword')
+        }
+    }
+}

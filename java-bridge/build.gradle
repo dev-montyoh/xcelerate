@@ -73,15 +73,7 @@ publishing {
             }
         }
     }
-    repositories {
-        maven {
-            url = 'https://central.sonatype.com/api/v1/publisher/upload'
-            credentials {
-                username = findProperty('sonatypeUsername')
-                password = findProperty('sonatypePassword')
-            }
-        }
-    }
+    // 배포 레포지토리는 루트 build.gradle의 nexusPublishing 이 관리
 }
 
 signing {
