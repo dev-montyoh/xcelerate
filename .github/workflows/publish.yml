@@ -45,11 +45,10 @@ jobs:
           SECRETS_STORE_ACCESS_TOKEN: ${{ secrets.SECRETS_STORE_ACCESS_TOKEN }}
 
       - name: Maven Central 배포
-        run: |
-          GPG_KEY_DECODED=$(echo "$GPG_PRIVATE_KEY" | base64 --decode)
-          ./gradlew :java-bridge:publish \
-            -PsonatypeUsername="$SONATYPE_USERNAME" \
-            -PsonatypePassword="$SONATYPE_PASSWORD" \
-            -PsigningKeyId="$GPG_KEY_ID" \
-            -PsigningKey="$GPG_KEY_DECODED" \
-            -PsigningPassword="$GPG_PASSPHRASE"
+        run: ./gradlew :java-bridge:publish
+        env:
+          ORG_GRADLE_PROJECT_sonatypeUsername: ${{ env.SONATYPE_USERNAME }}
+          ORG_GRADLE_PROJECT_sonatypePassword: ${{ env.SONATYPE_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKeyId:     ${{ env.GPG_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingKey:       ${{ env.GPG_PRIVATE_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword:  ${{ env.GPG_PASSPHRASE }}
