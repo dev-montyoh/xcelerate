@@ -74,28 +74,18 @@ publishing {
         }
     }
     repositories {
+        // 로컬 스테이징 디렉토리: 이후 ZIP 번들로 묶어 Central Portal에 업로드
         maven {
-            url = 'https://central.sonatype.com/api/v1/publisher/upload'
-            credentials {
-                username = findProperty('sonatypeUsername')
-                password = findProperty('sonatypePassword')
-            }
+            name = 'staging'
+            url  = layout.buildDirectory.dir('staging-deploy')
         }
     }
 }
 
 signing {
-    def signingKey      = findProperty('signingKey')
-    def signingPassword = findProperty('signingPassword')
-    useInMemoryPgpKeys(signingKey, signingPassword)
+    // CI: signing.gnupg.keyName / signing.gnupg.passphrase 는
+    // 워크플로우에서 ~/.gradle/gradle.properties 에 주입됨
+    useGpgCmd()
     sign publishing.publications.maven
 }
 
-sourceSets {
-    main {
-        java.srcDirs 'src/main/java'
-    }
-    test {
-        java.srcDirs 'src/test/java'
-    }
-}

@@ -1,0 +1,2 @@
+// 루트 프로젝트 빌드 설정
+// 배포는 java-bridge/build.gradle 및 .github/workflows/publish.yml 참조
