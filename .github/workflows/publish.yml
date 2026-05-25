@@ -63,7 +63,22 @@ jobs:
           GPG_PASS_VAL: ${{ env.GPG_PASSPHRASE }}
 
       - name: Maven Central 배포
-        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository
+        run: |
+          # 1단계: 로컬 스테이징 디렉토리에 서명된 아티팩트 배포
+          ./gradlew :java-bridge:publishMavenPublicationToStagingRepository
+
+          # 2단계: 스테이징 디렉토리를 ZIP 번들로 압축
+          cd java-bridge/build/staging-deploy
+          zip -r ../bundle.zip .
+          cd -
+
+          # 3단계: Sonatype Central Portal API에 번들 업로드 (AUTOMATIC 자동 릴리즈)
+          BUNDLE_AUTH=$(printf '%s:%s' "$SONATYPE_USER" "$SONATYPE_PASS" | base64 -w0)
+          curl --fail --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer $BUNDLE_AUTH" \
+            --form bundle=@java-bridge/build/bundle.zip \
+            "https://central.sonatype.com/api/v1/publisher/upload?publishingType=AUTOMATIC"
         env:
-          ORG_GRADLE_PROJECT_sonatypeUsername: ${{ env.SONATYPE_USERNAME }}
-          ORG_GRADLE_PROJECT_sonatypePassword: ${{ env.SONATYPE_PASSWORD }}
+          SONATYPE_USER: ${{ env.SONATYPE_USERNAME }}
+          SONATYPE_PASS: ${{ env.SONATYPE_PASSWORD }}
