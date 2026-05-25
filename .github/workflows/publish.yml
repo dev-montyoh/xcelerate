@@ -1,0 +1,57 @@
+name: Publish to Maven Central
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: C++ 코어 빌드
+        uses: ./.github/actions/build-core
+
+      - name: JDK 17 설정
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Gradle 캐시
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Secrets 로드
+        uses: actions/checkout@v4
+        with:
+          repository: 'dev-montyoh/secrets-store'
+          token: ${{ secrets.SECRETS_STORE_ACCESS_TOKEN }}
+          path: secrets-store
+
+      - name: Load secrets
+        uses: ./secrets-store/.github/actions/load-secrets
+        with:
+          SECRETS_STORE_ACCESS_TOKEN: ${{ secrets.SECRETS_STORE_ACCESS_TOKEN }}
+
+      - name: GPG 키 임포트
+        run: echo "${{ env.GPG_PRIVATE_KEY }}" | base64 --decode | gpg --import --batch
+
+      - name: Maven Central 배포
+        run: ./gradlew :java-bridge:publish
+        env:
+          ORG_GRADLE_PROJECT_sonatypeUsername: ${{ env.SONATYPE_USERNAME }}
+          ORG_GRADLE_PROJECT_sonatypePassword: ${{ env.SONATYPE_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKeyId:     ${{ env.GPG_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingKey:       ${{ env.GPG_PRIVATE_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword:  ${{ env.GPG_PASSPHRASE }}
