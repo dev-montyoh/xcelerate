@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'signing'
 }
 
 repositories {
@@ -11,6 +12,14 @@ dependencies {
     implementation 'net.java.dev.jna:jna:5.14.0'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    withJavadocJar()
+    withSourcesJar()
 }
 
 // C++ 빌드 결과물(네이티브 라이브러리)을 JAR 안의 /native/ 로 번들
@@ -34,18 +43,52 @@ test {
 publishing {
     publications {
         maven(MavenPublication) {
-            groupId    = 'me.dev-monty'
+            groupId    = 'dev.montyoh'
             artifactId = 'xcelerate'
             version    = '0.0.1'
             from components.java
+
+            pom {
+                name        = 'Xcelerate'
+                description = 'High-performance Excel/CSV streaming library using C++ native core'
+                url         = 'https://github.com/dev-montyoh/xcelerate'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url  = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        id   = 'dev-montyoh'
+                        name = 'Monty Oh'
+                        email = 'ohhanjin0330@gmail.com'
+                    }
+                }
+                scm {
+                    url                 = 'https://github.com/dev-montyoh/xcelerate'
+                    connection          = 'scm:git:git://github.com/dev-montyoh/xcelerate.git'
+                    developerConnection = 'scm:git:ssh://github.com/dev-montyoh/xcelerate.git'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = 'https://central.sonatype.com/api/v1/publisher/upload'
+            credentials {
+                username = findProperty('sonatypeUsername')
+                password = findProperty('sonatypePassword')
+            }
         }
     }
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
+signing {
+    def signingKey      = findProperty('signingKey')
+    def signingPassword = findProperty('signingPassword')
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign publishing.publications.maven
 }
 
 sourceSets {
