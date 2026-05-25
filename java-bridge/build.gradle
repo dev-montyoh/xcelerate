@@ -88,9 +88,9 @@ signing {
     def signingKeyBase64 = findProperty('signingKey')
     def signingKeyId     = findProperty('signingKeyId')
     def signingPassword  = findProperty('signingPassword')
-    // base64 인코딩된 ASCII-armored 키를 디코딩하여 사용
+    // base64 인코딩된 ASCII-armored 키를 디코딩하여 사용 (Groovy 내장 decodeBase64() 사용)
     def signingKey = signingKeyBase64
-        ? new String(Base64.decoder.decode(signingKeyBase64 as String))
+        ? new String((signingKeyBase64 as String).decodeBase64())
         : null
     useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
     sign publishing.publications.maven
