@@ -31,14 +31,14 @@ jobs:
 
       - name: 네이티브 아티팩트 스테이징
         run: |
-          mkdir -p ${{ matrix.platform_id }}
-          cp core/build/${{ matrix.native_file }} ${{ matrix.platform_id }}/${{ matrix.native_file }}
+          mkdir -p native/${{ matrix.platform_id }}
+          cp core/build/${{ matrix.native_file }} native/${{ matrix.platform_id }}/${{ matrix.native_file }}
 
       - name: 네이티브 아티팩트 업로드
         uses: actions/upload-artifact@v4
         with:
           name: xcelerate-${{ matrix.platform_id }}
-          path: ${{ matrix.platform_id }}/${{ matrix.native_file }}
+          path: native/
           if-no-files-found: error
 
   publish:
