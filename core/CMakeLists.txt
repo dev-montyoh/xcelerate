@@ -15,10 +15,6 @@ project(xcelerate VERSION 0.0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(UNIX AND NOT APPLE)
-    set(ZLIB_USE_STATIC_LIBS ON)
-endif()
-
 find_package(ZLIB REQUIRED)
 
 add_library(xcelerate SHARED
