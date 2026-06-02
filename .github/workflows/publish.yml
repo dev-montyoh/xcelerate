@@ -6,8 +6,16 @@ on:
       - 'v*'
 
 jobs:
-  publish:
-    runs-on: ubuntu-latest
+  build-native:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform_id: linux-x86_64
+            runs_on: ubuntu-latest
+          - platform_id: linux-aarch64
+            runs_on: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runs_on }}
 
     steps:
       - name: 코드 체크아웃
@@ -15,6 +23,33 @@ jobs:
 
       - name: C++ 코어 빌드
         uses: ./.github/actions/build-core
+
+      - name: 네이티브 아티팩트 스테이징
+        run: |
+          mkdir -p ${{ matrix.platform_id }}
+          cp core/build/libxcelerate.so ${{ matrix.platform_id }}/libxcelerate.so
+
+      - name: 네이티브 아티팩트 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcelerate-${{ matrix.platform_id }}
+          path: ${{ matrix.platform_id }}/libxcelerate.so
+          if-no-files-found: error
+
+  publish:
+    needs: build-native
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 네이티브 아티팩트 다운로드
+        uses: actions/download-artifact@v4
+        with:
+          pattern: xcelerate-*
+          merge-multiple: true
+          path: java-bridge/build/native
 
       - name: JDK 17 설정
         uses: actions/setup-java@v4

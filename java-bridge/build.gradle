@@ -4,6 +4,8 @@ plugins {
     id 'signing'
 }
 
+import java.util.Locale
+
 repositories {
     mavenCentral()
 }
@@ -22,13 +24,37 @@ java {
     withSourcesJar()
 }
 
-// C++ 빌드 결과물(네이티브 라이브러리)을 JAR 안의 /native/ 로 번들
+def normalizeOs = { String osName ->
+    def normalized = osName.toLowerCase(Locale.ROOT)
+    if (normalized.contains('mac') || normalized.contains('darwin')) return 'macos'
+    if (normalized.contains('win')) return 'windows'
+    if (normalized.contains('nux') || normalized.contains('linux')) return 'linux'
+    normalized.replaceAll(/[^a-z0-9]+/, '')
+}
+
+def normalizeArch = { String arch ->
+    def normalized = arch.toLowerCase(Locale.ROOT)
+    if (normalized in ['x86_64', 'amd64']) return 'x86_64'
+    if (normalized in ['aarch64', 'arm64']) return 'aarch64'
+    normalized.replaceAll(/[^a-z0-9_]+/, '')
+}
+
+def hostPlatform = "${normalizeOs(System.getProperty('os.name'))}-${normalizeArch(System.getProperty('os.arch'))}"
+def hostNativeDir = file("${rootDir}/core/build")
+def stagedNativeDir = file("${projectDir}/build/native")
+
+// C++ 빌드 결과물(네이티브 라이브러리)을 JAR 안의 /native/<os-arch>/ 로 번들
 processResources {
-    from("${rootDir}/core/build") {
-        include 'libxcelerate.dylib'   // macOS
-        include 'libxcelerate.so'      // Linux
-        include 'xcelerate.dll'        // Windows
+    from(stagedNativeDir) {
+        include '**/libxcelerate.so'
         into 'native'
+    }
+
+    from(hostNativeDir) {
+        include 'libxcelerate.dylib'
+        include 'libxcelerate.so'
+        include 'xcelerate.dll'
+        into "native/${hostPlatform}"
     }
     duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.INCLUDE
 }
@@ -88,4 +114,3 @@ signing {
     useGpgCmd()
     sign publishing.publications.maven
 }
-
