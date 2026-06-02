@@ -6,6 +6,7 @@ runs:
   steps:
     - name: zlib 설치
       run: sudo apt-get install -y zlib1g-dev
+      if: runner.os == 'Linux'
       shell: bash
 
     - name: CMake 빌드
