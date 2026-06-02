@@ -73,7 +73,7 @@ publishing {
         maven(MavenPublication) {
             groupId    = 'dev.montyoh'
             artifactId = 'xcelerate'
-            version    = '0.0.2-rc.2'
+            version    = '0.0.2-rc.3'
             from components.java
 
             pom {
