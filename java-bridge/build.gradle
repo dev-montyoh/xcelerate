@@ -47,6 +47,8 @@ def stagedNativeDir = file("${projectDir}/build/native")
 processResources {
     from(stagedNativeDir) {
         include '**/libxcelerate.so'
+        include '**/libxcelerate.dylib'
+        include '**/xcelerate.dll'
         into 'native'
     }
 
