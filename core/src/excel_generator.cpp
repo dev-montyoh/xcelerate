@@ -499,8 +499,8 @@ void* xcelerateOpen(
     void*              write_ctx
 ) {
     if (!headers || header_count <= 0 || !write_fn) return nullptr;
+    auto* s = new Session();
     try {
-        auto* s = new Session();
         if (file_type == XCELERATE_EXCEL) {
             s->type = Session::EXCEL;
             s->xlsx = new XlsxSession(headers, header_count, write_fn, write_ctx);
@@ -509,11 +509,14 @@ void* xcelerateOpen(
             s->csv  = new CsvSession(headers, header_count, write_fn, write_ctx);
         }
         return s;
-    } catch (...) { return nullptr; }
+    } catch (...) { delete s; return nullptr; }
 }
 
 int xcelerateWrite(void* session, const char** data, int row_count, int col_count) {
     if (!session || !data || row_count <= 0 || col_count <= 0) return 1;
+    for (int i = 0; i < row_count * col_count; i++) {
+        if (!data[i]) return 1;
+    }
     auto* s = static_cast<Session*>(session);
     try {
         return (s->type == Session::EXCEL)

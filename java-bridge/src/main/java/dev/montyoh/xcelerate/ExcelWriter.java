@@ -35,6 +35,9 @@ public class ExcelWriter implements Closeable {
     private boolean closed = false;
 
     private ExcelWriter(List<String> headers, FileType type, OutputStream out) throws IOException {
+        if (headers == null || headers.isEmpty()) {
+            throw new IllegalArgumentException("헤더는 최소 1개 이상이어야 합니다");
+        }
         this.colCount = headers.size();
         this.out      = out;
 
@@ -128,14 +131,17 @@ public class ExcelWriter implements Closeable {
         if (closed) return;
         closed = true;
 
-        checkWriteError();
+        try {
+            checkWriteError();
 
-        if (ExcelLib.INSTANCE.xcelerateClose(session) != 0) {
-            throw new IOException("xcelerateClose 실패");
+            if (ExcelLib.INSTANCE.xcelerateClose(session) != 0) {
+                throw new IOException("xcelerateClose 실패");
+            }
+
+            checkWriteError();
+        } finally {
+            out.flush();
         }
-
-        checkWriteError();
-        out.flush();
     }
 
     // =========================================================

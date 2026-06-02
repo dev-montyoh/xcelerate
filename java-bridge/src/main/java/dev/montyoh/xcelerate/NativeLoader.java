@@ -9,7 +9,9 @@ class NativeLoader {
 
     private static volatile String resolvedPath = null;
 
-    static synchronized String resolve() {
+    static String resolve() {
+        if (resolvedPath != null) return resolvedPath;
+        synchronized (NativeLoader.class) {
         if (resolvedPath != null) return resolvedPath;
 
         String libName = System.mapLibraryName("xcelerate");
@@ -42,6 +44,7 @@ class NativeLoader {
         // 3. JNA 기본 탐색에 위임 (PATH, LD_LIBRARY_PATH 등)
         resolvedPath = "xcelerate";
         return resolvedPath;
+        } // synchronized
     }
 
     static List<String> resourceCandidates(String libName) {
