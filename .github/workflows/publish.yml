@@ -29,6 +29,10 @@ jobs:
       - name: C++ 코어 빌드
         uses: ./.github/actions/build-core
 
+      - name: 리눅스 네이티브 의존성 확인
+        if: startsWith(matrix.platform_id, 'linux-')
+        run: ldd core/build/${{ matrix.native_file }}
+
       - name: 네이티브 아티팩트 스테이징
         run: |
           mkdir -p ${{ matrix.platform_id }}
