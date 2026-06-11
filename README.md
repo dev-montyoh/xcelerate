@@ -1,12 +1,30 @@
+<br/>
+
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" alt="Java" width="72" />&nbsp;&nbsp;<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg" alt="C++" width="72" />
+
 # Xcelerate
 
-> C++과 JNA 기반의 고성능 Excel / CSV 스트리밍 생성 라이브러리
+[![Maven Central](https://img.shields.io/maven-central/v/dev.montyoh/xcelerate)](https://central.sonatype.com/artifact/dev.montyoh/xcelerate)
+[![Java](https://img.shields.io/badge/Java-17-orange?logo=openjdk&logoColor=white)](https://openjdk.org/)
+[![License](https://img.shields.io/badge/license-MIT-brightgreen)](LICENSE)
 
-Java/Spring 환경에서 수백만 건의 데이터를 메모리 부담 없이 빠르게 Excel·CSV 파일로 생성할 수 있습니다.
+**C++과 JNA 기반의 고성능 Excel / CSV 스트리밍 생성 라이브러리**
 
 ---
 
-## 특징
+Java/Spring 환경에서 대용량 데이터를 메모리 부담 없이 빠르게 Excel·CSV 파일로 생성해야 하는 상황에서, 기존 Apache POI 기반 라이브러리들이 수백만 행을 처리할 때 OOM을 일으키는 문제를 해결하고자 만들었습니다. C++ 네이티브 코어가 DEFLATE 압축을 직접 수행하고 청크 단위로 스트리밍하여, 행이 아무리 많아도 JVM 힙을 일정하게 유지합니다.
+
+---
+
+## 사용 기술
+
+- Java 17, JNA 5.14
+- C++17, zlib, CMake
+- Gradle
+
+---
+
+## 주요 특징
 
 - **고성능** — C++ 네이티브 코어가 DEFLATE 압축을 직접 수행, 수백만 행을 빠르게 처리
 - **O(1) 메모리** — 전체 데이터를 메모리에 올리지 않고 청크 단위로 스트리밍
@@ -18,24 +36,27 @@ Java/Spring 환경에서 수백만 건의 데이터를 메모리 부담 없이 �
 
 ## 설치
 
-> 현재 개발 중입니다. Maven Central 배포 예정입니다.
-
 ```groovy
 // build.gradle
-repositories {
-    mavenLocal()
-}
-
 dependencies {
-    implementation 'dev.montyoh:xcelerate:0.0.1'
+    implementation 'dev.montyoh:xcelerate:0.0.2'
 }
+```
+
+```xml
+<!-- pom.xml -->
+<dependency>
+    <groupId>dev.montyoh</groupId>
+    <artifactId>xcelerate</artifactId>
+    <version>0.0.2</version>
+</dependency>
 ```
 
 ---
 
 ## 사용법
 
-### 기본 — Excel 생성
+### Excel 생성
 
 ```java
 List<String> headers = List.of("ID", "이름", "금액");
@@ -51,7 +72,7 @@ try (ExcelWriter writer = ExcelWriter.headers(headers)
 }
 ```
 
-### 기본 — CSV 생성
+### CSV 생성
 
 ```java
 try (ExcelWriter writer = ExcelWriter.headers(headers)
@@ -66,12 +87,10 @@ try (ExcelWriter writer = ExcelWriter.headers(headers)
 `append()`는 여러 번 호출할 수 있습니다. DB에서 배치 단위로 읽어 즉시 전달하면 메모리를 O(1)로 유지할 수 있습니다.
 
 ```java
-// 1) ExcelWriter 세션 오픈 — C++ 네이티브 세션이 생성되고 OutputStream 과 연결됨
 try (ExcelWriter writer = ExcelWriter.headers(headers)
                                      .type(FileType.EXCEL)
                                      .to(response.getOutputStream())) {
 
-    // 2) DB에서 N건씩 읽어 append() — C++이 받는 즉시 압축하여 OutputStream 에 write
     repository.streamInBatches(10_000, batch -> {
         try {
             writer.append(toRows(batch));
@@ -79,8 +98,7 @@ try (ExcelWriter writer = ExcelWriter.headers(headers)
             throw new RuntimeException(e);
         }
     });
-
-} // 3) close() 시 ZIP central directory 등 xlsx 마무리 구조 기록
+}
 ```
 
 ### Spring MVC 다운로드 엔드포인트
@@ -126,22 +144,22 @@ public void downloadCsv(HttpServletResponse response) throws IOException {
 
 ```
 xcelerate/
- ├── core/           # C++ 네이티브 코어 (zlib DEFLATE 스트리밍)
- └── java-bridge/    # JNA 브릿지 및 Java API
+ ├── core/               # C++ 네이티브 코어 (zlib DEFLATE 스트리밍)
+ │    ├── CMakeLists.txt
+ │    ├── include/
+ │    └── src/
+ └── java-bridge/        # JNA 브릿지 및 Java API
+      └── src/
+           ├── main/java/dev/montyoh/xcelerate/
+           │    ├── ExcelLib.java
+           │    ├── ExcelWriter.java
+           │    ├── FileType.java
+           │    └── NativeLoader.java
+           └── test/java/dev/montyoh/xcelerate/
 ```
 
 ---
 
-## 기술 스택
+## 문서
 
-| 영역 | 기술 |
-|------|------|
-| 네이티브 코어 | C++17, zlib, CMake |
-| JVM 브릿지 | Java 17, JNA 5.14 |
-| 빌드 | Gradle, CMake |
-
----
-
-## 라이선스
-
-MIT License © 2026 Xcelerate
+- **[개발 가이드 →](CONTRIBUTING.md)** — 빌드 방법 · 브랜치 전략 · 커밋 규칙
